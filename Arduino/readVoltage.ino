@@ -1,44 +1,45 @@
 // C++ code
 //
 
+#include <iostream>
+#include <cstdint>
+
 int inputPort = A2;
-int redLed = 12;
-int greenLed = 11;
+int redLed = 10;
+int greenLed = 9;
 int blueLed = 8;
 int delayTime = 500;
 int bitVoltage;
 float realVoltage; 
+float bitConverter = (5. / 1023.);
+uint8_t ledBits = 0x07;
 
 
 void setup(){
 
   Serial.begin(9600);
+  DDRB |= 0x07;
+  PORTB = 0x00;
 
 }
 
 void loop(){
 	
   bitVoltage = analogRead(inputPort);
-  realVoltage = (5./1023.) * bitVoltage;
+  realVoltage = bitConverter * bitVoltage;
   Serial.println(realVoltage);
   delay(delayTime);
   
+  PORTB &= ~(0x07);
+
   if(realVoltage < 2){
-    digitalWrite(redLed,HIGH);
-    digitalWrite(greenLed,LOW);
-    digitalWrite(blueLed,LOW);
+    PORTB |= 0x04;
   }
   if(2 < realVoltage && realVoltage < 4){
-    digitalWrite(redLed,LOW);
-    digitalWrite(greenLed,HIGH);
-    digitalWrite(blueLed,LOW);
+    PORTB |= 0x02;
   }
   if(4 < realVoltage){
-    digitalWrite(redLed,LOW);
-    digitalWrite(greenLed,LOW);
-    digitalWrite(blueLed,HIGH);
+    PORTB |= 0x01;
   }
-
-
 
 }
