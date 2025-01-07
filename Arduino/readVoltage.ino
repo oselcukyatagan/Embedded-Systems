@@ -18,13 +18,13 @@ void setup(){
 
 void loop(){
 	
-	bitVoltage = analogRead(inputPort);
-    realVoltage = (5./1023.) * bitVoltage;
-  	Serial.println(realVoltage);
-  	delay(delayTime);
+  bitVoltage = analogRead(inputPort);
+  realVoltage = (5./1023.) * bitVoltage;
+  Serial.println(realVoltage);
+  delay(delayTime);
   
   if(realVoltage < 2){
-  	digitalWrite(redLed,HIGH);
+    digitalWrite(redLed,HIGH);
     digitalWrite(greenLed,LOW);
     digitalWrite(blueLed,LOW);
   }
