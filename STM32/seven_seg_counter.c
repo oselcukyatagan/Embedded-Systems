@@ -35,6 +35,7 @@ typedef struct {
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
+
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -53,18 +54,19 @@ int main(void)
 
   /* USER CODE BEGIN 1 */
 
+
 	int delayTime = 1000;
 
-	int pinValues[10][7] = {{1,1,1,1,1,1,0},  /* a,b,c,d,e,f,g */
-          						    {0,1,1,0,0,0,0},
-          						    {1,1,0,1,1,0,1},
-          						    {1,1,1,1,0,0,1},
-          							  {0,1,1,0,0,1,1}, 
-          							  {1,0,1,1,0,1,1}, 
-          							  {1,0,1,1,1,1,1}, 
-          							  {1,1,1,0,0,0,0}, 
-          							  {1,1,1,1,1,1,1}, 
-          							  {1,1,1,1,0,1,1}};
+	int pinValues[10][7] = {{1,1,1,1,1,1,0}, //a,b,c,d,e,f,g
+						    {0,1,1,0,0,0,0},
+						    {1,1,0,1,1,0,1},
+						    {1,1,1,1,0,0,1},
+							{0,1,1,0,0,1,1}, // 4
+							{1,0,1,1,0,1,1}, // 5
+							{1,0,1,1,1,1,1}, // 6
+							{1,1,1,0,0,0,0}, // 7
+							{1,1,1,1,1,1,1}, // 8
+							{1,1,1,1,0,1,1}};
 
 	pinVar pins[7] = {
 			{seven_seg_A_GPIO_Port,seven_seg_A_Pin},
@@ -74,6 +76,15 @@ int main(void)
 			{seven_seg_E_GPIO_Port,seven_seg_E_Pin},
 			{seven_seg_F_GPIO_Port,seven_seg_F_Pin},
 			{seven_seg_G_GPIO_Port,seven_seg_G_Pin}};
+
+	void displayDigit(uint8_t digit){
+
+		for (int j = 0; j < 7; ++j) {
+			HAL_GPIO_WritePin(pins[j].Port, pins[j].Pin, pinValues[digit][j]);
+		}
+		HAL_Delay(delayTime);
+
+	}
 
   /* USER CODE END 1 */
 
@@ -104,17 +115,12 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  HAL_GPIO_WritePin(LD2_Green_Led_GPIO_Port, LD2_Green_Led_Pin, 1);
-	  HAL_Delay(delayTime);
-	  HAL_GPIO_WritePin(LD2_Green_Led_GPIO_Port, LD2_Green_Led_Pin, 0);
-	  HAL_Delay(delayTime);
 
-	  for (int i = 0; i < 10; ++i) {
-		for (int j = 0; j < 7; ++j) {
-			HAL_GPIO_WritePin(pins[j].Port, pins[j].Pin, pinValues[i][j]);
-		}
-		HAL_Delay(delayTime);
-	}
+	  static uint8_t i = 0;
+	  displayDigit(i);
+	  i++;
+	  i %= 10;
+
 
     /* USER CODE END WHILE */
 
