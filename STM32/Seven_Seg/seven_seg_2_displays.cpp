@@ -1,3 +1,26 @@
+/* Includes ------------------------------------------------------------------*/
+#include "main.h"
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
+
+/* USER CODE END Includes */
+
+/* Private typedef -----------------------------------------------------------*/
+/* USER CODE BEGIN PTD */
+
+/* USER CODE END PTD */
+
+/* Private define ------------------------------------------------------------*/
+/* USER CODE BEGIN PD */
+
+/* USER CODE END PD */
+
+/* Private macro -------------------------------------------------------------*/
+/* USER CODE BEGIN PM */
+
+/* USER CODE END PM */
+
+/* Private variables ---------------------------------------------------------*/
 UART_HandleTypeDef huart2;
 TIM_HandleTypeDef htim3;
 /* USER CODE BEGIN PV */
@@ -9,18 +32,22 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_TIM3_Init(void);
+/* USER CODE BEGIN PFP */
 
+/* USER CODE END PFP */
+
+/* Private user code ---------------------------------------------------------*/
+/* USER CODE BEGIN 0 */
 class Pin {
-
 public:
 
     GPIO_TypeDef *Port;
-    uint16_t Pin;
+    uint16_t Pin_Number;
 
 
     Pin(GPIO_TypeDef *Port, uint16_t Pin_Number) {
         this->Port = Port;
-        this->Pin = Pin;
+        this->Pin_Number = Pin_Number;
     }
 
 };
@@ -42,8 +69,11 @@ public:
     };
 
     // Constructor
-    Seven_Segment_Display(Pin pins){
-    	this->pins = pins;
+    Seven_Segment_Display(Pin pins[]){
+    	for (int i = 0; i < 7; ++i) {
+    		this->pins[i] = pins[i];
+		}
+
     }
 
 
@@ -103,7 +133,7 @@ int main(void)
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
 
-/* USER CODE BEGIN Init */
+  /* USER CODE BEGIN Init */
 
   /* USER CODE END Init */
 
@@ -240,6 +270,7 @@ static void MX_TIM3_Init(void)
 }
 
 
+
 /**
   * @brief USART2 Initialization Function
   * @param None
@@ -349,7 +380,6 @@ void Error_Handler(void)
   }
   /* USER CODE END Error_Handler_Debug */
 }
-
 
 #ifdef  USE_FULL_ASSERT
 /**
