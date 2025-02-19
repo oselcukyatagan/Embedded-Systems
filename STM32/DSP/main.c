@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include <string.h>
 #include <math.h>
+#include "lowPassFilter.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -73,7 +74,7 @@ static void MX_TIM2_Init(void);
 /**
  * Write settings for adc dac timer2 later to not search for it in the code later.
  *
- * /
+ * */
 
 
 LowPassFilter lowPassFilter;
