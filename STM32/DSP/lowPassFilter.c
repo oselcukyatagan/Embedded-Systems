@@ -40,7 +40,7 @@
      if(Fc > filter->samplingFrequency / 2.0) Fc = filter->samplingFrequency/2.0;
      else if (Fc < 0.1f) Fc = 0.1f;
  
-     float alpha = 1/(1+(filter->samplingFrequency / (2 * M_PI * Fc)));
+     float alpha = (2 * M_PI * Fc) / (filter->samplingFrequency + (2 * M_PI * Fc));
  
      filter->coefficients[0] = alpha;
      filter->coefficients[1] = 1 - alpha;
