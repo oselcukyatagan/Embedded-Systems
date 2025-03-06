@@ -1,5 +1,3 @@
-
-/* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stdint.h"
 #include "string.h"
@@ -46,50 +44,48 @@ static void MX_I2C1_Init(void);
 /* USER CODE BEGIN 0 */
 
 	uint8_t AHT10_Adress = 0x38;
-	uint8_t triggerCommand = 0xac;
-	uint8_t receiveByteSize = 8;
+	uint8_t triggerCommand[3] = {0xAC, 0x33, 0x00};;
 	uint8_t sensorData[6];
 	uint8_t sensorDataSize = 6;
 	uint32_t temp;
 
 
 	char message[50];
-
+	char message_2[50];
 
 
 	HAL_StatusTypeDef readTemp(uint8_t sensorAdress, uint8_t *dataToTransmit, uint8_t dataToTransmitSize, uint32_t *tempData,
 			uint8_t *sensorDataArray, uint8_t sensorDataArraySize){
 
+		HAL_StatusTypeDef result;
 
-			HAL_StatusTypeDef result;
+		result = HAL_I2C_Master_Transmit(&hi2c1, sensorAdress << 1, dataToTransmit, dataToTransmitSize, HAL_MAX_DELAY);
+		if(result != HAL_OK) return result;
+		HAL_Delay(75);
 
-
-			result = HAL_I2C_Master_Transmit(&hi2c1, sensorAdress << 1, dataToTransmit, dataToTransmitSize, HAL_MAX_DELAY);
-			if(result != HAL_OK) return result;
-			HAL_Delay(75);
-
-			result = HAL_I2C_Master_Receive(&hi2c1, (sensorAdress << 1) | 0x01, sensorDataArray, sensorDataArraySize, HAL_MAX_DELAY);
-			if(result != HAL_OK) return result;
-
-			*tempData = sensorDataArray[3] << 12 | sensorDataArray[4] << 4 | sensorDataArray[5] >> 4;
-
-			return HAL_OK;
-
-		}
-
-
-	uint32_t power(uint16_t base, uint16_t exp) {
-		    uint32_t res = 1;
-		    for (uint16_t i = 0; i < exp; i++) {
-		        res *= base;
+		result = HAL_I2C_Master_Receive(&hi2c1, (sensorAdress << 1) | 0x01, sensorDataArray, sensorDataArraySize, HAL_MAX_DELAY);
+		if(result != HAL_OK) return result;
+		if (sensorDataArray[0] & 0x80) {
+		        return HAL_BUSY;
 		    }
-		    return res;
+
+		*tempData = ((uint32_t)(sensorDataArray[3] & 0x0F) << 16) | ((uint32_t)sensorDataArray[4] << 8) | sensorDataArray[5];
+
+		return HAL_OK;
+
 		}
+
 
 	float getTempInCelsius(uint32_t tempVal) {
 
-		return ((float)tempVal / (power(2,20)) ) * 200.0 - 50.0;
+		return ((float)tempVal / (1 << 20) ) * 200.0 - 50.0;
 
+	}
+
+
+	void initTemperatureSensor(uint8_t sensorAdress, uint8_t *dataToTransmit, uint8_t dataToTransmitSize){
+		HAL_I2C_Master_Transmit(&hi2c1, sensorAdress << 1, dataToTransmit, dataToTransmitSize, HAL_MAX_DELAY);
+		HAL_Delay(100);
 	}
 
 /* USER CODE END 0 */
@@ -112,7 +108,9 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-
+  uint8_t initCommand[3] = {0xE1, 0x08, 0x00};
+  uint8_t initCommandSize = 3;
+  initTemperatureSensor(AHT10_Adress, initCommand, initCommandSize);
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -135,13 +133,19 @@ int main(void)
   while (1)
   {
 
-	  if (readTemp(AHT10_Adress, &triggerCommand, 1, &temp, &sensorData, sensorDataSize) == HAL_OK){
+
+
+	  readTemp(AHT10_Adress, triggerCommand, 3, &temp, sensorData, sensorDataSize);
+
+
+		  sprintf(message_2, " raw: %lu \r\n", temp);
+		  HAL_UART_Transmit(&huart2, (uint8_t*)message_2, strlen(message_2), HAL_MAX_DELAY);
 
 		  float temperature = getTempInCelsius(temp);
-		  sprintf(message, " raw value: %lu\r\n", temp);
+		  sprintf(message, " temperature: %d \r\n", (int)temperature);
 		  HAL_UART_Transmit(&huart2, (uint8_t*)message, strlen(message), HAL_MAX_DELAY);
 
-	  }
+
 
 	  HAL_Delay(1000);
 
